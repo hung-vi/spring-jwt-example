@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,7 +56,8 @@ public class UserDao implements UserRepository {
         return (ResultSet _resultSet, int _rowNum) ->
         {
             return new User(
-                _resultSet.getString("id"),
+                Long.parseLong(_resultSet.getString("id")),
+                new HashSet<>(),
                 _resultSet.getString("email"),
                 _resultSet.getString("first_name"),
                 _resultSet.getString("last_name"),

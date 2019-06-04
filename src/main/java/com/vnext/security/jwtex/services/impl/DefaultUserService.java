@@ -5,15 +5,21 @@ import com.vnext.security.jwtex.api.exceptions.ResourceNotFoundException;
 import com.vnext.security.jwtex.api.exceptions.ResourceViolationException;
 import com.vnext.security.jwtex.models.Password;
 import com.vnext.security.jwtex.models.User;
+import com.vnext.security.jwtex.models.UserPrincipal;
 import com.vnext.security.jwtex.repositories.UserRepository;
 import com.vnext.security.jwtex.services.UserService;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
-public class DefaultUserService implements UserService {
+public class DefaultUserService implements UserService, UserDetailsService {
 
     @Autowired
     UserRepository userRepository;
@@ -21,7 +27,9 @@ public class DefaultUserService implements UserService {
     @Transactional(rollbackFor = ResourceException.class)
     @Override
     public User createUser(@NonNull String _email, @NonNull String _firstName, @NonNull String _lastName, @NonNull String _password) throws ResourceViolationException {
-        User user = new User(null, _email, _firstName, _lastName, _password);
+        Set<String> authorities = new HashSet<>();
+        authorities.add("USER");
+        User user = new User(null, authorities, _email, _firstName, _lastName, _password);
         checkDuplicateEmail(user);
         user = userRepository.insert(user);
         return user;
@@ -57,4 +65,14 @@ public class DefaultUserService implements UserService {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public UserDetails loadUserByUsername(String _email) throws UsernameNotFoundException {
+        User user =
+            this.userRepository.findByEmail(_email)
+                .orElseThrow(() ->
+                    new UsernameNotFoundException(String.format("user not found with email \"%s\"", _email)));
+        UserPrincipal principal = UserPrincipal.of(user);
+        return principal;
+    }
 }

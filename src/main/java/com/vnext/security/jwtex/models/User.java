@@ -2,10 +2,14 @@ package com.vnext.security.jwtex.models;
 
 import lombok.Value;
 
+import java.util.Set;
+
 @Value
 public class User {
 
-    String id;
+    Long id;
+
+    Set<String> authorities;
 
     String email;
 
