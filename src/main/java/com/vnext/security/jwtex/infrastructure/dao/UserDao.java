@@ -12,6 +12,8 @@ import java.sql.ResultSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -20,9 +22,34 @@ public class UserDao implements UserRepository {
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
 
+
+    @Override
+    public Optional<User> findById(Long _id) {
+        String query = "SELECT id, email, first_name, last_name, password FROM \"user\" WHERE id = :id";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("id", _id);
+
+        List<User> result = this.jdbcTemplate.query(query, parameters, rowMapper());
+
+        return addAuthorityToUniqueUser(result);
+    }
+
+
+    @Override
+    public Optional<User> findByEmail(String _email) {
+        String query = "SELECT id, email, first_name, last_name, password FROM \"user\" WHERE email = :email";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("email", _email);
+
+        List<User> result = this.jdbcTemplate.query(query, parameters, rowMapper());
+        return addAuthorityToUniqueUser(result);
+    }
+
+
     @Override
     public User insert(User _user) {
-        String query = "INSERT INTO user(email, first_name, last_name, password) VALUES (:email, :firstName, :lastName, :password)";
+        String query = "INSERT INTO \"user\" (email, first_name, last_name, password) VALUES (:email, :firstName, :lastName, :password) " +
+            "RETURNING id, email, first_name, last_name, password";
 
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("email", _user.getEmail());
@@ -36,18 +63,27 @@ public class UserDao implements UserRepository {
     }
 
 
-    @Override
-    public Optional<User> findByEmail(String _email) {
-        String query = "SELECT id, email, first_name, last_name, password FROM user WHERE email = :email";
+    private Set<String> findAuthorities(Long _userId) {
+        String query = "SELECT auth.authority FROM user_authority as uauth JOIN authority as auth ON uauth.authority_id = auth.id " +
+            "WHERE uauth.user_id = :user_id";
         MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("email", _email);
+        parameters.addValue("user_id", _userId);
 
-        List<User> result = this.jdbcTemplate.query(query, parameters, rowMapper());
-        if (result.size() != 1) {
+        List<String> result = this.jdbcTemplate.query(query, parameters, (resultSet, rowNum) -> resultSet.getString("authority"));
+
+        return result.stream().collect(Collectors.toSet());
+    }
+
+
+    private Optional<User> addAuthorityToUniqueUser(List<User> _userList) {
+        if (_userList.size() != 1) {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(result.get(0));
+        User user = _userList.get(0);
+        user.setAuthorities(findAuthorities(user.getId()));
+
+        return Optional.ofNullable(user);
     }
 
 
