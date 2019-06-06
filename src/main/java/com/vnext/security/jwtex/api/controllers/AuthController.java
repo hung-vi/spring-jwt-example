@@ -5,6 +5,7 @@ import com.vnext.security.jwtex.api.forms.UserCreateForm;
 import com.vnext.security.jwtex.api.forms.UserLoginForm;
 import com.vnext.security.jwtex.api.responses.CreatedResponse;
 import com.vnext.security.jwtex.api.responses.JwtAuthenticationResponse;
+import com.vnext.security.jwtex.api.responses.ResourceResponse;
 import com.vnext.security.jwtex.api.views.UserView;
 import com.vnext.security.jwtex.infrastructure.security.JwtTokenProvider;
 import com.vnext.security.jwtex.models.User;
@@ -46,7 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> login(@RequestBody @Valid UserLoginForm _form) {
+    public ResourceResponse<JwtAuthenticationResponse> login(@RequestBody @Valid UserLoginForm _form) {
         Authentication authentication = authenticationManager.authenticate (
             new UsernamePasswordAuthenticationToken(_form.getEmail(), _form.getPassword())
         );
@@ -55,7 +56,7 @@ public class AuthController {
 
         String jwt = jwtTokenProvider.generateToken(authentication);
 
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        return new ResourceResponse<>(new JwtAuthenticationResponse(jwt));
     }
 
 

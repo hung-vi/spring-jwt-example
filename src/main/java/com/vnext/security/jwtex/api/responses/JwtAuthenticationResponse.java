@@ -2,7 +2,7 @@ package com.vnext.security.jwtex.api.responses;
 
 public class JwtAuthenticationResponse {
     private String accessToken;
-    private String tokenType = "Bearer";
+    private String tokenType = "bearer";
 
 
     public JwtAuthenticationResponse(String accessToken) {

@@ -17,48 +17,45 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserPrincipal implements UserDetails {
 
-    @NonNull
     @Getter
     private Long id;
 
-    @NonNull
     @Getter
     private Collection<? extends GrantedAuthority> authorities;
 
-    @NonNull
     @Getter
     private String username;
 
-    @NonNull
     @Getter
     private String password;
-
-    @NonNull
-    @Getter
-    private boolean accountNonExpired;
-
-    @NonNull
-    @Getter
-    private boolean accountNonLocked;
-
-    @NonNull
-    @Getter
-    private boolean credentialsNonExpired;
-
-    @NonNull
-    @Getter
-    private boolean enabled;
 
     public static UserPrincipal of(@NonNull User _user) {
 
         return new UserPrincipal(_user.getId(),
                                  _user.getAuthorities().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet()),
                                  _user.getEmail(),
-                                 _user.getPassword(),
-                                 true,
-                                 true,
-                                 true,
-                                 true);
+                                 _user.getPassword());
+    }
+
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     @Override

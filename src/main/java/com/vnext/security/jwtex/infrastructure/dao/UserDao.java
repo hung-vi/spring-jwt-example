@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -57,8 +58,33 @@ public class UserDao implements UserRepository {
         parameters.addValue("password", _user.getPassword());
 
         List<User> result = this.jdbcTemplate.query(query, parameters, rowMapper());
+        User user = result.get(0);
 
-        return result.get(0);
+        Long authorityId = findAuthorityId("USER");
+
+        insertAuthority(user.getId(), authorityId);
+        user.setAuthorities(new HashSet<>(Arrays.asList("USER")));
+        return user;
+    }
+
+
+    private Long findAuthorityId(String _authority) {
+        String query = "SELECT id FROM authority WHERE authority = :authority";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("authority", _authority);
+
+        return this.jdbcTemplate.queryForObject(query, parameters, Long.class);
+    }
+
+
+    private void insertAuthority(Long _userId, Long _authorityId) {
+        String query = "INSERT INTO user_authority (user_id, authority_id) VALUES (:userId, :authorityId) ";
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("userId", _userId);
+        parameters.addValue("authorityId", _authorityId);
+
+        this.jdbcTemplate.update(query, parameters);
     }
 
 

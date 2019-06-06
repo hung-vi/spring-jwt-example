@@ -4,6 +4,7 @@ import com.vnext.security.jwtex.api.exceptions.AuthenticationFailedException;
 import com.vnext.security.jwtex.api.exceptions.ResourceException;
 import com.vnext.security.jwtex.api.exceptions.ResourceNotFoundException;
 import com.vnext.security.jwtex.api.exceptions.ResourceViolationException;
+import com.vnext.security.jwtex.api.exceptions.UnknownUserPrincipalException;
 import com.vnext.security.jwtex.models.Password;
 import com.vnext.security.jwtex.models.User;
 import com.vnext.security.jwtex.models.UserPrincipal;
@@ -37,6 +38,24 @@ public class DefaultUserService implements UserService {
         return UserPrincipal.of(user);
     }
 
+
+    @Transactional(readOnly = true, rollbackFor = ResourceException.class)
+    @Override
+    public User getUser(@NonNull String _email) throws ResourceNotFoundException {
+        Optional<User> user = this.userRepository.findByEmail(_email);
+        if (!user.isPresent()) {
+            throw new ResourceNotFoundException(String.format("user \"%s\" not found", _email));
+        }
+        return user.get();
+    }
+
+    @Override
+    public User getSelf(UserPrincipal _userPrincipal) {
+        return this.userRepository.findById(_userPrincipal.getId())
+            .orElseThrow(() -> new UnknownUserPrincipalException(_userPrincipal));
+    }
+
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public UserDetails loadUserByUsername(String _email) throws UsernameNotFoundException {
@@ -57,17 +76,6 @@ public class DefaultUserService implements UserService {
         checkDuplicateEmail(user);
         user = userRepository.insert(user);
         return user;
-    }
-
-
-    @Transactional(readOnly = true, rollbackFor = ResourceException.class)
-    @Override
-    public User getUser(@NonNull String _email) throws ResourceNotFoundException {
-        Optional<User> user = this.userRepository.findByEmail(_email);
-        if (!user.isPresent()) {
-            throw new ResourceNotFoundException(String.format("user \"%s\" not found", _email));
-        }
-        return user.get();
     }
 
 
