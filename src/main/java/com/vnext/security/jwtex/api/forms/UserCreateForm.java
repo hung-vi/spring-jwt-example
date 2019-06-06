@@ -2,11 +2,8 @@ package com.vnext.security.jwtex.api.forms;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vnext.security.jwtex.utils.validation.Email;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Value;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;

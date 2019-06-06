@@ -9,11 +9,10 @@ import com.vnext.security.jwtex.models.User;
 import com.vnext.security.jwtex.models.UserPrincipal;
 import com.vnext.security.jwtex.repositories.UserRepository;
 import com.vnext.security.jwtex.services.UserService;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +22,10 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
+@AllArgsConstructor
 public class DefaultUserService implements UserService {
 
-    @Autowired
-    UserRepository userRepository;
+    final UserRepository userRepository;
 
     @Transactional(rollbackFor = ResourceException.class)
     @Override
@@ -35,8 +34,7 @@ public class DefaultUserService implements UserService {
             this.userRepository.findById(_id)
                 .orElseThrow(() ->
                                  new UsernameNotFoundException(String.format("user not found with email \"%s\"", _id)));
-        UserPrincipal principal = UserPrincipal.of(user);
-        return principal;
+        return UserPrincipal.of(user);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -46,8 +44,7 @@ public class DefaultUserService implements UserService {
             this.userRepository.findByEmail(_email)
                 .orElseThrow(() ->
                                  new UsernameNotFoundException(String.format("user not found with email \"%s\"", _email)));
-        UserPrincipal principal = UserPrincipal.of(user);
-        return principal;
+        return UserPrincipal.of(user);
     }
 
     @Transactional(rollbackFor = ResourceException.class)

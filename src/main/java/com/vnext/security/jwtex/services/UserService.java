@@ -7,7 +7,6 @@ import com.vnext.security.jwtex.models.User;
 import lombok.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Service;
 
 
 public interface UserService extends UserDetailsService {

@@ -4,7 +4,6 @@ import com.vnext.security.jwtex.infrastructure.security.JwtAuthenticationFilter;
 import com.vnext.security.jwtex.infrastructure.security.authentication.JwtAuthenticationEntryPoint;
 import com.vnext.security.jwtex.services.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-
+@AllArgsConstructor
 @Configuration
 @EnableWebMvc
 @EnableWebSecurity
@@ -31,11 +30,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 )
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private UserService userService;
+    final UserService userService;
 
-    @Autowired
-    private JwtAuthenticationEntryPoint unauthorizedHandler;
+    final JwtAuthenticationEntryPoint unauthorizedHandler;
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -93,7 +90,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // Add our custom JWT security filter
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
-
     }
 }

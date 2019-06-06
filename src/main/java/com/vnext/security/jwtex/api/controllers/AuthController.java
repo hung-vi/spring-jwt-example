@@ -9,7 +9,7 @@ import com.vnext.security.jwtex.api.views.UserView;
 import com.vnext.security.jwtex.infrastructure.security.JwtTokenProvider;
 import com.vnext.security.jwtex.models.User;
 import com.vnext.security.jwtex.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,18 +22,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+
 @RestController
 @RequestMapping("/api/auth")
+@AllArgsConstructor
 public class AuthController {
 
-    @Autowired
-    UserService userService;
+    final UserService userService;
 
-    @Autowired
-    AuthenticationManager authenticationManager;
+    final AuthenticationManager authenticationManager;
 
-    @Autowired
-    JwtTokenProvider jwtTokenProvider;
+    final JwtTokenProvider jwtTokenProvider;
+
 
     @PostMapping("/signup")
     public CreatedResponse<UserView> create(@RequestBody @Valid UserCreateForm _form) throws ResourceViolationException {

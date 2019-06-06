@@ -2,7 +2,7 @@ package com.vnext.security.jwtex.infrastructure.dao;
 
 import com.vnext.security.jwtex.models.User;
 import com.vnext.security.jwtex.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -13,13 +13,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Component
+@AllArgsConstructor
 public class UserDao implements UserRepository {
 
-    @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
 
 
@@ -71,7 +70,7 @@ public class UserDao implements UserRepository {
 
         List<String> result = this.jdbcTemplate.query(query, parameters, (resultSet, rowNum) -> resultSet.getString("authority"));
 
-        return result.stream().collect(Collectors.toSet());
+        return new HashSet<>(result);
     }
 
 
@@ -83,21 +82,19 @@ public class UserDao implements UserRepository {
         User user = _userList.get(0);
         user.setAuthorities(findAuthorities(user.getId()));
 
-        return Optional.ofNullable(user);
+        return Optional.of(user);
     }
 
 
     private RowMapper<User> rowMapper()
     {
         return (ResultSet _resultSet, int _rowNum) ->
-        {
-            return new User(
+            new User(
                 Long.parseLong(_resultSet.getString("id")),
                 new HashSet<>(),
                 _resultSet.getString("email"),
                 _resultSet.getString("first_name"),
                 _resultSet.getString("last_name"),
                 _resultSet.getString("password"));
-        };
     }
 }

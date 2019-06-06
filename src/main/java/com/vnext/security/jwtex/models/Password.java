@@ -9,7 +9,7 @@ import org.mindrot.jbcrypt.BCrypt;
 public class Password
 {
     @NonNull
-    private String hash;
+    private final String hash;
 
     private Password(@NonNull String _hash)
     {
